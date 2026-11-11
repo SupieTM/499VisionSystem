@@ -36,11 +36,23 @@ class idIdent:
         for data in self.dataSet:
             print(json.dumps(data, indent=4))
 
-
     def readText(self):
 
         for data in self.dataSet:
             print(data["res"]["rec_texts"])
+
+    def retTextwConf(self, conf):
+
+        retList = []
+
+        for data in self.dataSet:
+            for index, value in enumerate(data["res"]["rec_scores"]):
+
+                if value >= conf:
+                    retList.append(data["res"]["rec_texts"][index])
+
+        return retList
+
 
 def main():
 
@@ -50,7 +62,9 @@ def main():
 
     orc.parseImg(img)
 
-    orc.readText()
+    retList = orc.retTextwConf(.80)
+
+    print(retList)
 
 
 if __name__ == "__main__":

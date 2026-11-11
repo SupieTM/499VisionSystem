@@ -53,23 +53,18 @@ class model:
             prediction = torch.nn.functional.interpolate(
                 prediction,
                 size=(original_size[1], original_size[0]),
-                mode = "bilinear",
-                align_corners = False
+                mode="bilinear",
+                align_corners=False
             )
-
 
             probability = prediction[0, 0].cpu().numpy()
 
-
-        #create the mask
+        # create the mask
         mask = (probability >= thresh).astype(np.uint8) * 255
-
 
         return mask, probability
 
-
-
-    def parseMask(image, mask, color=(0)):
+    def parseMask(image, mask):
         resImg = image.convert("RGBA")
 
         mask = Image.fromarray(mask).convert("L")
@@ -77,7 +72,6 @@ class model:
         resImg.putalpha(mask)
 
         return resImg
-
 
     def addBg(retImg, size, color):
 
@@ -87,6 +81,17 @@ class model:
 
         return Image.alpha_composite(bgImg, retImg)
 
+
+    # this function creates the image cutout and puts it on a white background
+    def createWhiteBgCutout(self, img):
+
+        procMask, procProb = self.processImg(img)
+
+        retImg = self.parseMask(img, procMask)
+
+        retImg = self.addBg(retImg, img.size, (255, 255, 255))
+
+        return retImg
 
 
 def main():
@@ -102,9 +107,9 @@ def main():
     # Proccess image using model
     procMask, procProb = mdl.proccessImg(img)
 
-    retImg = mdl.parseMask(img, procMask, 255)
+    retImg = mdl.parseMask(img, procMask)
 
-    retImg = mdl.addBg(retImg, imgSize, (255,255,255))
+    retImg = mdl.addBg(retImg, imgSize, (255, 255, 255))
 
     retImg.save("test_img.png")
 
