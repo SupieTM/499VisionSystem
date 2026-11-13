@@ -9,11 +9,12 @@ from transformers import AutoModelForImageSegmentation
 
 import cv2 as cv
 
-ModelName = 'ZhengPeng7/BiRefNet'
 
 
-class model:
-    def __init__(self, name: str):
+class objIdent:
+    def __init__(self):
+        name = 'ZhengPeng7/BiRefNet'
+
         self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
         self.model = AutoModelForImageSegmentation.from_pretrained(
@@ -64,7 +65,7 @@ class model:
 
         return mask, probability
 
-    def parseMask(image, mask):
+    def parseMask(self, image, mask):
         resImg = image.convert("RGBA")
 
         mask = Image.fromarray(mask).convert("L")
@@ -73,7 +74,7 @@ class model:
 
         return resImg
 
-    def addBg(retImg, size, color):
+    def addBg(self, retImg, size, color):
 
         retImg = retImg.convert("RGBA")
 
@@ -81,11 +82,11 @@ class model:
 
         return Image.alpha_composite(bgImg, retImg)
 
-
     # this function creates the image cutout and puts it on a white background
+
     def createWhiteBgCutout(self, img):
 
-        procMask, procProb = self.processImg(img)
+        procMask, procProb = self.proccessImg(img)
 
         retImg = self.parseMask(img, procMask)
 
@@ -102,14 +103,9 @@ def main():
     imgSize = img.size
 
     # Load model
-    mdl = model(ModelName)
+    mdl = objIdent()
 
-    # Proccess image using model
-    procMask, procProb = mdl.proccessImg(img)
-
-    retImg = mdl.parseMask(img, procMask)
-
-    retImg = mdl.addBg(retImg, imgSize, (255, 255, 255))
+    retImg = mdl.createWhiteBgCutout(img)
 
     retImg.save("test_img.png")
 
